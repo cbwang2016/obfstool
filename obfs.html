@@ -192,25 +192,25 @@
                     ZCrypt.generate_c = function (ops, cs) {
 
                         var code = "";
-                        code += "unsigned char s[] = \n{\n";
+                        code += "#include <stdio.h>\n#include <windows.h>\n\nint main() \n{\n    unsigned char s[] = {";
 
                         for (var i = 0; i < cs.length; ++i) {
                             if ((i % 8) == 0)
-                                code += "\n    ";
+                                code += "\n        ";
 
                             code += "0x" + cs[i].toString(16) + ", ";
                         }
 
                         code = code.slice(0, -2);
 
-                        code += "\n};\n\n";
+                        code += "\n    };\n\n";
 
-                        code += "for (unsigned int m = 0; m < sizeof(s); ++m)\n{\n"
-                        code += "    unsigned char c = s[m];\n";
+                        code += "    for (unsigned int m = 0; m < sizeof(s); ++m)\n    {\n"
+                        code += "        unsigned char c = s[m];\n";
 
                         ops = ops.reverse();
                         for (var i = 0; i < ops.length; ++i) {
-                            code += "    c ";
+                            code += "        c ";
 
                             var op = ops[i][0][0];
                             switch (op) {
@@ -252,12 +252,16 @@
 
                         }
 
-                        code += "    s[m] = c;\n}\n\n";
+                        code += "        s[m] = c;\n    }\n\n";
 
-                        if (document.getElementById('zcrypt_shellcode').checked)
-                            code += "(*(void(*)(void))&s)();";
+                        if (document.getElementById('zcrypt_shellcode').checked) {
+                            code += "    LPVOID exec = VirtualAlloc(NULL, sizeof(s), MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);\n";
+                            code += "    memcpy(exec, s, sizeof(s));\n";
+                            code += "    ((void (*)())exec)();\n\n";
+                            code += "    return 0;\n}";
+                        }
                         else
-                            code += 'printf("%s\\n", s);';
+                            code += '    printf("%s\\n", s);\n}';
 
                         return code;
                     }
