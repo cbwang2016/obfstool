@@ -205,10 +205,11 @@
 
                         code += "\n    };\n\n";
 
+                        code += "    unsigned long long i, sum = 0;\n    for (i = 0; i < 0x04fffffff; i++)\n        sum += i;\n    sum -= 900719923460833281;\n    sum += ;\n\n";
+
                         code += "    for (unsigned int m = 0; m < sizeof(s); ++m)\n    {\n"
                         code += "        unsigned char c = s[m];\n";
-                        code += "    unsigned long long i, sum = 0;\n    for (i = 0; i < 0x04fffffff; i++)\n        sum += i;\n    sum -= 900719923460833281;\n    sum += ;";
-
+                        
                         ops = ops.reverse();
                         for (var i = 0; i < ops.length; ++i) {
                             code += "        c ";
